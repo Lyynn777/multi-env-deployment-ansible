@@ -1,0 +1,39 @@
+name: Ansible Multi-Env Deployment
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # allow manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible python3-docker
+
+      - name: Start Docker containers (dev, stage, prod)
+        run: |
+          docker run -d --name dev-web ubuntu:20.04 sleep infinity
+          docker run -d --name stage-web ubuntu:20.04 sleep infinity
+          docker run -d --name prod-web ubuntu:20.04 sleep infinity
+
+          # prepare containers (install python so Ansible can run)
+          docker exec dev-web apt-get update && docker exec dev-web apt-get install -y python3
+          docker exec stage-web apt-get update && docker exec stage-web apt-get install -y python3
+          docker exec prod-web apt-get update && docker exec prod-web apt-get install -y python3
+
+      - name: Run Ansible Playbook on Dev
+        run: ansible-playbook -i inventories/dev playbooks/deploy.yml
+
+      - name: Run Ansible Playbook on Stage
+        run: ansible-playbook -i inventories/stage playbooks/deploy.yml
+
+      - name: Run Ansible Playbook on Prod
+        run: ansible-playbook -i inventories/prod playbooks/deploy.yml
