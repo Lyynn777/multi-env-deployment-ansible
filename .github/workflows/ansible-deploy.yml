@@ -29,6 +29,12 @@ jobs:
           docker exec stage-web apt-get update && docker exec stage-web apt-get install -y python3
           docker exec prod-web apt-get update && docker exec prod-web apt-get install -y python3
 
+      - name: Debug inventory
+        run: cat -A inventories/dev/hosts.ini
+
+      - name: Debug playbook
+        run: cat -A playbooks/deploy.yml
+
       - name: Run Ansible Playbook on Dev
         run: ansible-playbook -i inventories/dev/hosts.ini playbooks/deploy.yml
 
