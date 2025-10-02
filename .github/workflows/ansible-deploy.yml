@@ -30,7 +30,7 @@ jobs:
           docker exec prod-web apt-get update && docker exec prod-web apt-get install -y python3
 
       - name: Run Ansible Playbook on Dev
-        run: ansible-playbook -i inventories/dev playbooks/deploy.yml
+        run: ansible-playbook -i inventories/dev/hosts.ini playbooks/deploy.yml
 
       - name: Run Ansible Playbook on Stage
         run: ansible-playbook -i inventories/stage playbooks/deploy.yml
